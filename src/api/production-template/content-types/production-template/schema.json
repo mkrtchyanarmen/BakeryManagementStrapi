@@ -1,0 +1,38 @@
+{
+  "kind": "collectionType",
+  "collectionName": "production_templates",
+  "info": {
+    "singularName": "production-template",
+    "pluralName": "production-templates",
+    "displayName": "Production Template"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "type": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "production_price": {
+      "type": "decimal",
+      "required": true
+    },
+    "used_ingredients": {
+      "type": "component",
+      "component": "count-components.used-ingredients",
+      "repeatable": true,
+      "required": true,
+      "min": 1
+    },
+    "created_products": {
+      "type": "component",
+      "component": "count-components.created-products",
+      "repeatable": true,
+      "required": true,
+      "min": 1
+    }
+  }
+}

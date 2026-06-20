@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "suppliers",
+  "info": {
+    "singularName": "supplier",
+    "pluralName": "suppliers",
+    "displayName": "Supplier"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "ingredients": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ingredient.ingredient",
+      "mappedBy": "supplier"
+    },
+    "ingredient_purchases": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ingredient-purchase.ingredient-purchase",
+      "mappedBy": "supplier"
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "daily_cash_reports",
+  "info": {
+    "singularName": "daily-cash-report",
+    "pluralName": "daily-cash-reports",
+    "displayName": "Daily Cash Report",
+    "description": "End-of-day cash reconciliation"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true,
+      "unique": true
+    },
+    "cash_amount": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "card_amount": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "total_from_sales": {
+      "type": "decimal"
+    },
+    "difference": {
+      "type": "decimal"
+    },
+    "is_balanced": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "text"
+    }
+  }
+}

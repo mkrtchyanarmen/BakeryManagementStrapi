@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sales_records",
+  "info": {
+    "singularName": "sales-record",
+    "pluralName": "sales-records",
+    "displayName": "Sales Record",
+    "description": "End-of-day sold products and total revenue"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true,
+      "unique": true
+    },
+    "total_price": {
+      "type": "decimal",
+      "required": true,
+      "default": 0
+    },
+    "notes": {
+      "type": "text"
+    },
+    "sold_products": {
+      "type": "component",
+      "component": "count-components.created-products",
+      "repeatable": true,
+      "required": true,
+      "min": 1
+    }
+  }
+}

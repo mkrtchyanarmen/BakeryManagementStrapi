@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "electricity_logs",
+  "info": {
+    "singularName": "electricity-log",
+    "pluralName": "electricity-logs",
+    "displayName": "Electricity Log",
+    "description": "Daily electricity meter readings and computed usage"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true,
+      "unique": true
+    },
+    "meter_reading": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "kwh_used": {
+      "type": "decimal"
+    },
+    "total_cost": {
+      "type": "decimal"
+    }
+  }
+}

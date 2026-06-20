@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_count_components_created_products",
+  "info": {
+    "displayName": "Created Products",
+    "icon": "restaurant"
+  },
+  "options": {},
+  "attributes": {
+    "count": {
+      "type": "decimal",
+      "required": true,
+      "min": 1
+    },
+    "product": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    }
+  },
+  "config": {}
+}

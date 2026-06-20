@@ -1,0 +1,50 @@
+{
+  "kind": "collectionType",
+  "collectionName": "productions",
+  "info": {
+    "singularName": "production",
+    "pluralName": "productions",
+    "displayName": "Production"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "total_price": {
+      "type": "decimal",
+      "required": true
+    },
+    "expected_income": {
+      "type": "decimal",
+      "required": true
+    },
+    "production_price": {
+      "type": "decimal",
+      "required": true
+    },
+    "used_ingredients": {
+      "type": "component",
+      "component": "count-components.used-ingredients",
+      "repeatable": true,
+      "required": true,
+      "min": 1
+    },
+    "created_products": {
+      "type": "component",
+      "component": "count-components.created-products",
+      "repeatable": true,
+      "required": true,
+      "min": 1
+    },
+    "production_template": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::production-template.production-template"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "kind": "singleType",
+  "collectionName": "app_settings",
+  "info": {
+    "singularName": "app-setting",
+    "pluralName": "app-settings",
+    "displayName": "Settings",
+    "description": "Global application settings"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "electricity_price_per_kwh": {
+      "type": "decimal",
+      "required": true,
+      "default": 0,
+      "min": 0
+    },
+    "rental_price": {
+      "type": "decimal",
+      "required": true,
+      "default": 200000
+    },
+    "counter_service_fee": {
+      "type": "decimal",
+      "required": true,
+      "default": 10000
+    },
+    "mandatory_payment": {
+      "type": "decimal"
+    }
+  }
+}

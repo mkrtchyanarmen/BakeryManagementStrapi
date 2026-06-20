@@ -1,0 +1,53 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ingredients",
+  "info": {
+    "singularName": "ingredient",
+    "pluralName": "ingredients",
+    "displayName": "Ingredient",
+    "description": "Raw materials used in bakery production"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "price": {
+      "type": "decimal",
+      "required": true
+    },
+    "unit": {
+      "type": "enumeration",
+      "enum": [
+        "bag",
+        "box",
+        "piece"
+      ]
+    },
+    "conversion_factor_unit": {
+      "type": "enumeration",
+      "enum": [
+        "kg",
+        "liter"
+      ]
+    },
+    "conversion_factor": {
+      "type": "decimal"
+    },
+    "default_count": {
+      "type": "integer",
+      "default": 1
+    },
+    "supplier": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::supplier.supplier",
+      "inversedBy": "ingredients"
+    }
+  }
+}

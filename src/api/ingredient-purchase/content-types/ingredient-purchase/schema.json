@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "ingredient_purchases",
+  "info": {
+    "singularName": "ingredient-purchase",
+    "pluralName": "ingredient-purchases",
+    "displayName": "Ingredient Purchase",
+    "description": "Purchase records with price per base unit"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "purchased_at": {
+      "type": "datetime",
+      "required": true
+    },
+    "quantity": {
+      "type": "decimal",
+      "required": true,
+      "min": 0.001
+    },
+    "supplier": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::supplier.supplier",
+      "inversedBy": "ingredient_purchases"
+    },
+    "is_paid": {
+      "type": "boolean",
+      "required": true
+    },
+    "ingredient": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ingredient.ingredient",
+      "required": true
+    },
+    "total_price": {
+      "type": "decimal",
+      "required": true
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_count_components_used_ingredients",
+  "info": {
+    "displayName": "Used Ingredients",
+    "icon": "chartCircle"
+  },
+  "options": {},
+  "attributes": {
+    "count": {
+      "type": "decimal",
+      "required": true
+    },
+    "ingredient": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::ingredient.ingredient"
+    }
+  },
+  "config": {}
+}

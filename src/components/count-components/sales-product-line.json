@@ -1,0 +1,31 @@
+{
+  "collectionName": "components_count_components_sales_product_lines",
+  "info": {
+    "displayName": "Sales Product Line",
+    "icon": "shopping-cart"
+  },
+  "options": {},
+  "attributes": {
+    "product": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::product.product"
+    },
+    "quantity_sold": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "selling_price_snapshot": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    },
+    "line_revenue": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    }
+  },
+  "config": {}
+}
