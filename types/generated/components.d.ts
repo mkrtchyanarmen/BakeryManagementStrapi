@@ -7,7 +7,7 @@ export interface CountComponentsCreatedProducts extends Struct.ComponentSchema {
     icon: 'restaurant';
   };
   attributes: {
-    count: Schema.Attribute.Decimal &
+    count: Schema.Attribute.Integer &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
         {
@@ -62,11 +62,12 @@ export interface CountComponentsUsedIngredients extends Struct.ComponentSchema {
     icon: 'chartCircle';
   };
   attributes: {
-    count: Schema.Attribute.Decimal & Schema.Attribute.Required;
+    count: Schema.Attribute.Float & Schema.Attribute.Required;
     ingredient: Schema.Attribute.Relation<
       'oneToOne',
       'api::ingredient.ingredient'
     >;
+    show_unit: Schema.Attribute.Enumeration<['bag', 'kg', 'gram']>;
   };
 }
 

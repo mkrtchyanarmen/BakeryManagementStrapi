@@ -7,13 +7,21 @@
   "options": {},
   "attributes": {
     "count": {
-      "type": "decimal",
+      "type": "float",
       "required": true
     },
     "ingredient": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::ingredient.ingredient"
+    },
+    "show_unit": {
+      "type": "enumeration",
+      "enum": [
+        "bag",
+        "kg",
+        "gram"
+      ]
     }
   },
   "config": {}
