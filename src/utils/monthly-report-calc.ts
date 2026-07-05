@@ -283,18 +283,27 @@ export function buildMonthlyReport(input: {
     .sort((a, b) => b.total_sold - a.total_sold);
 
   const unsoldProducts = Array.from(productAggregates.values())
-    .map((entry) => ({
-      product_name: entry.product_name,
-      size: entry.size,
-      total_produced: entry.total_produced,
-      total_sold: entry.total_sold,
-      remaining: Math.max(
+    .map((entry) => {
+      const remaining = Math.max(
         roundMoney(entry.total_produced - entry.total_sold),
         0,
-      ),
-    }))
+      );
+      const unsoldRate =
+        entry.total_produced > 0
+          ? roundMoney((remaining / entry.total_produced) * 100)
+          : 0;
+
+      return {
+        product_name: entry.product_name,
+        size: entry.size,
+        total_produced: entry.total_produced,
+        total_sold: entry.total_sold,
+        remaining,
+        unsold_rate: unsoldRate,
+      };
+    })
     .filter((entry) => entry.remaining > 0)
-    .sort((a, b) => b.remaining - a.remaining);
+    .sort((a, b) => b.unsold_rate - a.unsold_rate);
 
   const productDemand = Array.from(productAggregates.values())
     .filter((entry) => entry.total_sold > 0)
