@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "fillings",
+  "info": {
+    "singularName": "filling",
+    "pluralName": "fillings",
+    "displayName": "Filling"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "ingredients": {
+      "type": "component",
+      "component": "count-components.used-ingredients",
+      "repeatable": true
+    },
+    "unit": {
+      "type": "enumeration",
+      "enum": [
+        "kg",
+        "piece"
+      ]
+    }
+  }
+}

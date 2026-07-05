@@ -578,6 +578,39 @@ export interface ApiElectricityLogElectricityLog
   };
 }
 
+export interface ApiFillingFilling extends Struct.CollectionTypeSchema {
+  collectionName: 'fillings';
+  info: {
+    displayName: 'Filling';
+    pluralName: 'fillings';
+    singularName: 'filling';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    ingredients: Schema.Attribute.Component<
+      'count-components.used-ingredients',
+      true
+    >;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::filling.filling'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    unit: Schema.Attribute.Enumeration<['kg', 'piece']>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiIngredientPurchaseIngredientPurchase
   extends Struct.CollectionTypeSchema {
   collectionName: 'ingredient_purchases';
@@ -678,6 +711,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    filling: Schema.Attribute.Relation<'oneToOne', 'api::filling.filling'>;
     is_active: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -1413,6 +1447,7 @@ declare module '@strapi/strapi' {
       'api::app-setting.app-setting': ApiAppSettingAppSetting;
       'api::daily-cash-report.daily-cash-report': ApiDailyCashReportDailyCashReport;
       'api::electricity-log.electricity-log': ApiElectricityLogElectricityLog;
+      'api::filling.filling': ApiFillingFilling;
       'api::ingredient-purchase.ingredient-purchase': ApiIngredientPurchaseIngredientPurchase;
       'api::ingredient.ingredient': ApiIngredientIngredient;
       'api::product.product': ApiProductProduct;
