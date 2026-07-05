@@ -33,6 +33,9 @@
       "repeatable": true,
       "required": true,
       "min": 1
+    },
+    "split_count": {
+      "type": "decimal"
     }
   }
 }

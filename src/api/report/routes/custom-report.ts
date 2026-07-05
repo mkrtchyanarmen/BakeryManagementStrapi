@@ -27,5 +27,14 @@ export default {
         middlewares: [],
       },
     },
+    {
+      method: 'GET',
+      path: '/reports/dashboard',
+      handler: 'report.dashboard',
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
   ],
 };

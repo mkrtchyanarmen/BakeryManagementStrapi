@@ -739,6 +739,7 @@ export interface ApiProductionTemplateProductionTemplate
       Schema.Attribute.Private;
     production_price: Schema.Attribute.Decimal & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
+    split_count: Schema.Attribute.Decimal;
     type: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique;

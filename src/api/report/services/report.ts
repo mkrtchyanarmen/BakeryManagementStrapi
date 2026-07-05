@@ -1,4 +1,5 @@
 import { getAppSettings, getElectricityPricePerKwh } from '../../../utils/app-settings';
+import { buildDashboardSeparateAccounts } from '../../../utils/dashboard-calc';
 import { buildMonthlyReport } from '../../../utils/monthly-report-calc';
 import { multiplyMoney, roundMoney, sumMoney } from '../../../utils/money';
 
@@ -328,6 +329,34 @@ export default () => ({
         total_revenue: entry.total_revenue,
         total_profit: entry.total_profit,
       };
+    });
+  },
+
+  async getDashboardSummary(date: string) {
+    const settings = await getAppSettings(strapi);
+    const monthFrom = `${date.slice(0, 7)}-01`;
+
+    const productions = await strapi.db
+      .query('api::production.production')
+      .findMany({
+        where: { date: { $gte: monthFrom, $lte: date } },
+      });
+
+    const electricityLogs = await strapi.db
+      .query('api::electricity-log.electricity-log')
+      .findMany({
+        where: { date: { $gte: monthFrom, $lte: date } },
+      });
+
+    return buildDashboardSeparateAccounts({
+      date,
+      settings: {
+        rental_price: Number(settings?.rental_price ?? 0),
+        counter_service_fee: Number(settings?.counter_service_fee ?? 0),
+        mandatory_payment: Number(settings?.mandatory_payment ?? 0),
+      },
+      productions: productions as never,
+      electricityLogs: electricityLogs as never,
     });
   },
 

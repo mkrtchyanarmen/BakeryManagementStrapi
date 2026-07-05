@@ -31,6 +31,22 @@ export default {
       .getProfitByProduct(from, to);
   },
 
+  async dashboard(ctx: {
+    query: { date?: string };
+    badRequest: (message: string) => unknown;
+    body: unknown;
+  }) {
+    const { date } = ctx.query;
+
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return ctx.badRequest('Query parameter "date" is required (YYYY-MM-DD).');
+    }
+
+    ctx.body = await strapi
+      .service('api::report.report')
+      .getDashboardSummary(date);
+  },
+
   async monthly(ctx: {
     query: { from?: string; to?: string };
     badRequest: (message: string) => unknown;

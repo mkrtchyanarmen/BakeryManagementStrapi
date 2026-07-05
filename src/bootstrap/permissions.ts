@@ -24,6 +24,7 @@ const CUSTOM_ACTIONS = [
   'api::report.report.daily',
   'api::report.report.profitByProduct',
   'api::report.report.monthly',
+  'api::report.report.dashboard',
   'api::end-of-day.end-of-day.get',
   'api::app-setting.app-setting.electricityPrice',
 ] as const;
