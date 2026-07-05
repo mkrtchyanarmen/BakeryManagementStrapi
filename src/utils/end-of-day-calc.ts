@@ -21,6 +21,7 @@ type CreatedProductLine = {
     id?: number;
     documentId?: string;
     name?: string;
+    size?: string;
     selling_price?: number;
   } | null;
 };
@@ -33,12 +34,15 @@ type ProductionRow = {
   created_products?: CreatedProductLine[];
 };
 
+export type { ProductionRow };
+
 type SoldProductLine = {
   count: number;
   product?: {
     id?: number;
     documentId?: string;
     name?: string;
+    size?: string;
     selling_price?: number;
   } | null;
 };

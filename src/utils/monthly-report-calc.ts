@@ -1,9 +1,10 @@
-import { calculateEndOfDayBreakdown } from './end-of-day-calc';
+import { calculateEndOfDayBreakdown, type ProductionRow } from './end-of-day-calc';
 import { multiplyMoney, roundMoney, sumMoney } from './money';
 
 type ProductRef = {
-  id: number;
-  name: string;
+  id?: number;
+  documentId?: string;
+  name?: string;
   size?: string;
   selling_price?: number;
 };
@@ -13,13 +14,8 @@ type CreatedProductLine = {
   product?: ProductRef | null;
 };
 
-type ProductionRecord = {
+type ProductionRecord = ProductionRow & {
   date: string;
-  total_price: number;
-  production_price: number;
-  expected_income: number;
-  used_ingredients?: unknown[];
-  created_products?: CreatedProductLine[];
 };
 
 type SalesRecord = {
@@ -56,7 +52,8 @@ type ProductMonthlyAggregate = {
 };
 
 function getProductKey(product: ProductRef): string {
-  return `${product.id}:${product.name}:${product.size ?? 'none'}`;
+  const id = product.id ?? product.documentId ?? 'unknown';
+  return `${id}:${product.name ?? '—'}:${product.size ?? 'none'}`;
 }
 
 export function eachDateInRange(from: string, to: string): string[] {
@@ -98,13 +95,13 @@ function buildProductMonthlyAggregates(
   for (const production of productions) {
     for (const line of production.created_products ?? []) {
       const product = line.product;
-      if (!product?.id) continue;
+      if (!product?.id && !product?.documentId) continue;
 
       const key = getProductKey(product);
       const quantity = Number(line.count);
       const entry = aggregates.get(key) ?? {
         product_key: key,
-        product_name: product.name,
+        product_name: product.name ?? '—',
         size: product.size ?? 'none',
         total_produced: 0,
         total_sold: 0,
@@ -122,14 +119,14 @@ function buildProductMonthlyAggregates(
 
     for (const line of record.sold_products ?? []) {
       const product = line.product;
-      if (!product?.id) continue;
+      if (!product?.id && !product?.documentId) continue;
 
       const key = getProductKey(product);
       const quantity = Number(line.count);
       const sellingPrice = Number(product.selling_price ?? 0);
       const entry = aggregates.get(key) ?? {
         product_key: key,
-        product_name: product.name,
+        product_name: product.name ?? '—',
         size: product.size ?? 'none',
         total_produced: 0,
         total_sold: 0,
