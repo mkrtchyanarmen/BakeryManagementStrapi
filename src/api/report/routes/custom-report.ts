@@ -18,5 +18,14 @@ export default {
         middlewares: [],
       },
     },
+    {
+      method: 'GET',
+      path: '/reports/monthly',
+      handler: 'report.monthly',
+      config: {
+        policies: [],
+        middlewares: [],
+      },
+    },
   ],
 };

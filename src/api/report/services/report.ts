@@ -1,4 +1,5 @@
-import { getElectricityPricePerKwh } from '../../../utils/app-settings';
+import { getAppSettings, getElectricityPricePerKwh } from '../../../utils/app-settings';
+import { buildMonthlyReport } from '../../../utils/monthly-report-calc';
 import { multiplyMoney, roundMoney, sumMoney } from '../../../utils/money';
 
 type ProductRef = {
@@ -327,6 +328,61 @@ export default () => ({
         total_revenue: entry.total_revenue,
         total_profit: entry.total_profit,
       };
+    });
+  },
+
+  async getMonthlyReport(from: string, to: string) {
+    const settings = await getAppSettings(strapi);
+
+    const productions = await strapi.db
+      .query('api::production.production')
+      .findMany({
+        where: { date: { $gte: from, $lte: to } },
+        populate: {
+          used_ingredients: {
+            populate: { ingredient: true },
+          },
+          created_products: {
+            populate: { product: true },
+          },
+        },
+      });
+
+    const salesRecords = await strapi.db
+      .query('api::sales-record.sales-record')
+      .findMany({
+        where: { date: { $gte: from, $lte: to } },
+        populate: {
+          sold_products: {
+            populate: { product: true },
+          },
+        },
+      });
+
+    const cashReports = await strapi.db
+      .query('api::daily-cash-report.daily-cash-report')
+      .findMany({
+        where: { date: { $gte: from, $lte: to } },
+      });
+
+    const electricityLogs = await strapi.db
+      .query('api::electricity-log.electricity-log')
+      .findMany({
+        where: { date: { $gte: from, $lte: to } },
+      });
+
+    return buildMonthlyReport({
+      from,
+      to,
+      settings: {
+        rental_price: Number(settings?.rental_price ?? 0),
+        counter_service_fee: Number(settings?.counter_service_fee ?? 0),
+        mandatory_payment: Number(settings?.mandatory_payment ?? 0),
+      },
+      productions: productions as never,
+      salesRecords: salesRecords as never,
+      cashReports: cashReports as never,
+      electricityLogs: electricityLogs as never,
     });
   },
 });
