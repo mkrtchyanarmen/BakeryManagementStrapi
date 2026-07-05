@@ -24,6 +24,11 @@
     "is_active": {
       "type": "boolean",
       "default": true
+    },
+    "specific_ingredients": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::ingredient.ingredient"
     }
   }
 }
