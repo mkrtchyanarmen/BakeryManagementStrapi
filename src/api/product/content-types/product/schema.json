@@ -30,10 +30,10 @@
       "component": "count-components.product-ingredient",
       "repeatable": true
     },
-    "filling": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::filling.filling"
+    "filling_usage": {
+      "type": "component",
+      "component": "count-components.filling-usage",
+      "repeatable": true
     }
   }
 }

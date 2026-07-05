@@ -19,6 +19,17 @@ export interface CountComponentsCreatedProducts extends Struct.ComponentSchema {
   };
 }
 
+export interface CountComponentsFillingUsage extends Struct.ComponentSchema {
+  collectionName: 'components_count_components_filling_usages';
+  info: {
+    displayName: 'Filling Usage';
+  };
+  attributes: {
+    count: Schema.Attribute.Float & Schema.Attribute.Required;
+    filling: Schema.Attribute.Relation<'oneToOne', 'api::filling.filling'>;
+  };
+}
+
 export interface CountComponentsProductIngredient
   extends Struct.ComponentSchema {
   collectionName: 'components_count_components_product_ingredients';
@@ -90,6 +101,7 @@ declare module '@strapi/strapi' {
   export module Public {
     export interface ComponentSchemas {
       'count-components.created-products': CountComponentsCreatedProducts;
+      'count-components.filling-usage': CountComponentsFillingUsage;
       'count-components.product-ingredient': CountComponentsProductIngredient;
       'count-components.sales-product-line': CountComponentsSalesProductLine;
       'count-components.used-ingredients': CountComponentsUsedIngredients;

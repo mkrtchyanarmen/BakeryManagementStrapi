@@ -711,7 +711,10 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    filling: Schema.Attribute.Relation<'oneToOne', 'api::filling.filling'>;
+    filling_usage: Schema.Attribute.Component<
+      'count-components.filling-usage',
+      true
+    >;
     is_active: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<

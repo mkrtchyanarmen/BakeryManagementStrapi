@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_count_components_filling_usages",
+  "info": {
+    "displayName": "Filling Usage"
+  },
+  "options": {},
+  "attributes": {
+    "count": {
+      "type": "float",
+      "required": true
+    },
+    "filling": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::filling.filling"
+    }
+  },
+  "config": {}
+}
