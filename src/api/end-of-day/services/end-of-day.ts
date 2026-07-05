@@ -10,6 +10,21 @@ import {
 } from '../../../utils/electricity-log';
 import { roundMoney, sumMoney } from '../../../utils/money';
 
+function getCashReportTotalEntered(cashReport: {
+  cash_amount?: number | null;
+  card_amount?: number | null;
+  total_entered?: number | null;
+}) {
+  if (cashReport.total_entered != null && Number.isFinite(Number(cashReport.total_entered))) {
+    return roundMoney(Number(cashReport.total_entered));
+  }
+
+  return sumMoney([
+    Number(cashReport.cash_amount ?? 0),
+    Number(cashReport.card_amount ?? 0),
+  ]);
+}
+
 export default () => ({
   async getEndOfDay(date: string) {
     const settings = await getAppSettings(strapi);
@@ -91,28 +106,42 @@ export default () => ({
         total_cost: electricityCost,
         is_entered: Boolean(todayElectricity),
       },
-      cash: {
-        id: cashReport ? Number(cashReport.id) : null,
-        documentId: cashReport?.documentId ?? null,
-        cash_amount: cashReport ? Number(cashReport.cash_amount) : null,
-        card_amount: cashReport ? Number(cashReport.card_amount) : null,
-        total_entered: cashReport ? Number(cashReport.total_entered) : null,
-        total_from_sales: cashReport
-          ? Number(cashReport.total_from_sales)
-          : totalRevenue,
-        expected_cash_card: breakdown.expected_cash_card,
-        difference: cashReport
-          ? roundMoney(
-              Number(cashReport.total_entered) - breakdown.expected_cash_card,
-            )
-          : null,
-        is_balanced: cashReport
-          ? Math.abs(
-              Number(cashReport.total_entered) - breakdown.expected_cash_card,
-            ) < 500
-          : null,
-        is_entered: Boolean(cashReport),
-      },
+      cash: (() => {
+        if (!cashReport) {
+          return {
+            id: null,
+            documentId: null,
+            cash_amount: null,
+            card_amount: null,
+            total_entered: null,
+            total_from_sales: totalRevenue,
+            expected_cash_card: breakdown.expected_cash_card,
+            difference: null,
+            is_balanced: null,
+            is_entered: false,
+          };
+        }
+
+        const totalEntered = getCashReportTotalEntered(cashReport);
+        const difference = roundMoney(
+          totalEntered - breakdown.expected_cash_card,
+        );
+
+        return {
+          id: Number(cashReport.id),
+          documentId: cashReport.documentId ?? null,
+          cash_amount: Number(cashReport.cash_amount),
+          card_amount: Number(cashReport.card_amount),
+          total_entered: totalEntered,
+          total_from_sales: cashReport.total_from_sales
+            ? Number(cashReport.total_from_sales)
+            : totalRevenue,
+          expected_cash_card: breakdown.expected_cash_card,
+          difference,
+          is_balanced: Math.abs(difference) < 500,
+          is_entered: true,
+        };
+      })(),
       costs: breakdown.costs,
       remaining_products: breakdown.remaining_products,
       unsold_products_value: breakdown.unsold_products_value,
