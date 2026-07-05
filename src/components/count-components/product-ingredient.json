@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_count_components_product_ingredients",
+  "info": {
+    "displayName": "Product Ingredient"
+  },
+  "options": {},
+  "attributes": {
+    "usage": {
+      "type": "float",
+      "required": true
+    },
+    "ingredient": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::ingredient.ingredient"
+    }
+  },
+  "config": {}
+}

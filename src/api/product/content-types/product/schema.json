@@ -26,9 +26,9 @@
       "default": true
     },
     "specific_ingredients": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::ingredient.ingredient"
+      "type": "component",
+      "component": "count-components.product-ingredient",
+      "repeatable": true
     }
   }
 }

@@ -693,9 +693,9 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
         },
         number
       >;
-    specific_ingredients: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::ingredient.ingredient'
+    specific_ingredients: Schema.Attribute.Component<
+      'count-components.product-ingredient',
+      true
     >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
