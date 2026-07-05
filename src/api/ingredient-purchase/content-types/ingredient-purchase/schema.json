@@ -29,7 +29,8 @@
     },
     "is_paid": {
       "type": "boolean",
-      "required": true
+      "required": true,
+      "default": false
     },
     "ingredient": {
       "type": "relation",
