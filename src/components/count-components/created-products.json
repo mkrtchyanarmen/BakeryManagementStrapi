@@ -7,7 +7,7 @@
   "options": {},
   "attributes": {
     "count": {
-      "type": "integer",
+      "type": "float",
       "required": true,
       "min": 1
     },

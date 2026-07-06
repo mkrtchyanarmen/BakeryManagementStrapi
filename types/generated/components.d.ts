@@ -7,7 +7,7 @@ export interface CountComponentsCreatedProducts extends Struct.ComponentSchema {
     icon: 'restaurant';
   };
   attributes: {
-    count: Schema.Attribute.Integer &
+    count: Schema.Attribute.Float &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
         {
