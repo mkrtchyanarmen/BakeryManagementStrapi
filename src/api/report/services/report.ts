@@ -1,7 +1,10 @@
-import { getAppSettings, getElectricityPricePerKwh } from '../../../utils/app-settings';
-import { buildDashboardSeparateAccounts } from '../../../utils/dashboard-calc';
-import { buildMonthlyReport } from '../../../utils/monthly-report-calc';
-import { multiplyMoney, roundMoney, sumMoney } from '../../../utils/money';
+import {
+  getAppSettings,
+  getElectricityPricePerKwh,
+} from "../../../utils/app-settings";
+import { buildDashboardSeparateAccounts } from "../../../utils/dashboard-calc";
+import { buildMonthlyReport } from "../../../utils/monthly-report-calc";
+import { multiplyMoney, roundMoney, sumMoney } from "../../../utils/money";
 
 type ProductRef = {
   id: number;
@@ -41,7 +44,7 @@ function average(values: number[]): number {
 }
 
 function getProductKey(product: ProductRef): string {
-  return `${product.id}:${product.name}:${product.size ?? 'none'}`;
+  return `${product.id}:${product.name}:${product.size ?? "none"}`;
 }
 
 function aggregateProductionByProduct(
@@ -67,8 +70,7 @@ function aggregateProductionByProduct(
 
       const quantity = Number(line.count);
       const lineCost = multiplyMoney(batchTotal, quantity / totalCount);
-      const costPerUnit =
-        quantity > 0 ? roundMoney(lineCost / quantity) : 0;
+      const costPerUnit = quantity > 0 ? roundMoney(lineCost / quantity) : 0;
 
       const entry = aggregates.get(product.id) ?? {
         product,
@@ -94,7 +96,7 @@ function flattenSoldProducts(records: SalesRecord[]): CreatedProductLine[] {
 export default () => ({
   async getDailyReport(date: string) {
     const productions = await strapi.db
-      .query('api::production.production')
+      .query("api::production.production")
       .findMany({
         where: { date },
         populate: {
@@ -105,7 +107,7 @@ export default () => ({
       });
 
     const salesRecords = await strapi.db
-      .query('api::sales-record.sales-record')
+      .query("api::sales-record.sales-record")
       .findMany({
         where: { date },
         populate: {
@@ -118,13 +120,13 @@ export default () => ({
     const salesLines = flattenSoldProducts(salesRecords as SalesRecord[]);
 
     const cashReport = await strapi.db
-      .query('api::daily-cash-report.daily-cash-report')
+      .query("api::daily-cash-report.daily-cash-report")
       .findOne({
         where: { date },
       });
 
     const electricity = await strapi.db
-      .query('api::electricity-log.electricity-log')
+      .query("api::electricity-log.electricity-log")
       .findOne({
         where: { date },
       });
@@ -136,12 +138,10 @@ export default () => ({
     const production = Array.from(productionAggregates.values()).map(
       (entry) => ({
         product_name: entry.product.name,
-        size: entry.product.size ?? 'none',
+        size: entry.product.size ?? "none",
         quantity_produced: entry.quantity,
         cost_per_unit:
-          entry.quantity > 0
-            ? roundMoney(entry.totalCost / entry.quantity)
-            : 0,
+          entry.quantity > 0 ? roundMoney(entry.totalCost / entry.quantity) : 0,
         total_cost: entry.totalCost,
       }),
     );
@@ -157,7 +157,7 @@ export default () => ({
 
       return {
         product_name: product.name,
-        size: product.size ?? 'none',
+        size: product.size ?? "none",
         quantity_sold: quantitySold,
         selling_price: sellingPrice,
         revenue,
@@ -208,7 +208,7 @@ export default () => ({
 
   async getProfitByProduct(from: string, to: string) {
     const productions = await strapi.db
-      .query('api::production.production')
+      .query("api::production.production")
       .findMany({
         where: { date: { $gte: from, $lte: to } },
         populate: {
@@ -219,7 +219,7 @@ export default () => ({
       });
 
     const salesRecords = await strapi.db
-      .query('api::sales-record.sales-record')
+      .query("api::sales-record.sales-record")
       .findMany({
         where: { date: { $gte: from, $lte: to } },
         populate: {
@@ -263,12 +263,11 @@ export default () => ({
         const key = getProductKey(product);
         const quantity = Number(line.count);
         const lineCost = multiplyMoney(batchTotal, quantity / totalCount);
-        const costPerUnit =
-          quantity > 0 ? roundMoney(lineCost / quantity) : 0;
+        const costPerUnit = quantity > 0 ? roundMoney(lineCost / quantity) : 0;
 
         const entry = aggregates.get(key) ?? {
           product_name: product.name,
-          size: product.size ?? 'none',
+          size: product.size ?? "none",
           total_produced: 0,
           total_sold: 0,
           costPerUnits: [],
@@ -288,7 +287,7 @@ export default () => ({
       const key = getProductKey(product);
       const entry = aggregates.get(key) ?? {
         product_name: product.name,
-        size: product.size ?? 'none',
+        size: product.size ?? "none",
         total_produced: 0,
         total_sold: 0,
         costPerUnits: [],
@@ -337,15 +336,27 @@ export default () => ({
     const monthFrom = `${date.slice(0, 7)}-01`;
 
     const productions = await strapi.db
-      .query('api::production.production')
+      .query("api::production.production")
       .findMany({
         where: { date: { $gte: monthFrom, $lte: date } },
       });
 
     const electricityLogs = await strapi.db
-      .query('api::electricity-log.electricity-log')
+      .query("api::electricity-log.electricity-log")
       .findMany({
         where: { date: { $gte: monthFrom, $lte: date } },
+      });
+
+    const ingredientPurchases = await strapi.db
+      .query("api::ingredient-purchase.ingredient-purchase")
+      .findMany({
+        where: {
+          purchased_at: {
+            $gte: `${monthFrom}T00:00:00.000Z`,
+            $lte: `${date}T23:59:59.999Z`,
+          },
+        },
+        populate: { ingredient: { fields: ["documentId", "name"] } },
       });
 
     return buildDashboardSeparateAccounts({
@@ -357,6 +368,7 @@ export default () => ({
       },
       productions: productions as never,
       electricityLogs: electricityLogs as never,
+      ingredientPurchases: ingredientPurchases as never,
     });
   },
 
@@ -364,7 +376,7 @@ export default () => ({
     const settings = await getAppSettings(strapi);
 
     const productions = await strapi.db
-      .query('api::production.production')
+      .query("api::production.production")
       .findMany({
         where: { date: { $gte: from, $lte: to } },
         populate: {
@@ -378,7 +390,7 @@ export default () => ({
       });
 
     const salesRecords = await strapi.db
-      .query('api::sales-record.sales-record')
+      .query("api::sales-record.sales-record")
       .findMany({
         where: { date: { $gte: from, $lte: to } },
         populate: {
@@ -389,13 +401,13 @@ export default () => ({
       });
 
     const cashReports = await strapi.db
-      .query('api::daily-cash-report.daily-cash-report')
+      .query("api::daily-cash-report.daily-cash-report")
       .findMany({
         where: { date: { $gte: from, $lte: to } },
       });
 
     const electricityLogs = await strapi.db
-      .query('api::electricity-log.electricity-log')
+      .query("api::electricity-log.electricity-log")
       .findMany({
         where: { date: { $gte: from, $lte: to } },
       });
