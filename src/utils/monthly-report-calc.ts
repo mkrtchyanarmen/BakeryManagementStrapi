@@ -248,15 +248,20 @@ export function buildMonthlyReport(input: {
       electricityCost,
     });
 
-    dailyIncome.push({
-      date,
-      income: breakdown.summary.daily_income,
-      revenue: totalRevenue,
-    });
-
     const cash = cashByDate.get(date);
     const cashAmount = cash ? Number(cash.cash_amount ?? 0) : 0;
     const cardAmount = cash ? Number(cash.card_amount ?? 0) : 0;
+
+    // Income = (cash + card) − monthly reserve − today's product usage.
+    dailyIncome.push({
+      date,
+      income: roundMoney(
+        sumMoney([cashAmount, cardAmount]) -
+          breakdown.summary.monthly_reserve.daily -
+          breakdown.costs.ingredients_cost,
+      ),
+      revenue: totalRevenue,
+    });
 
     dailyPayments.push({
       date,
