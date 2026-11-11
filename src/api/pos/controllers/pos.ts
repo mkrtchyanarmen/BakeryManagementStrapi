@@ -69,6 +69,10 @@ export default {
     pos().upsertCashDesk(date, {
       opening_cash: body.opening_cash as number | null,
       workers_cost: body.workers_cost as number | null,
+      cashier_salary: body.cashier_salary as number | null,
+      baker_salary: body.baker_salary as number | null,
+      cook_salary: body.cook_salary as number | null,
+      cook2_salary: body.cook2_salary as number | null,
     }),
   ),
 
@@ -90,6 +94,7 @@ export default {
       date,
       template: String(body.template ?? ''),
       multiplier: Number(body.multiplier),
+      split_pieces_used: body.split_pieces_used as number | null,
       created_products: body.created_products as never,
     }),
   ),

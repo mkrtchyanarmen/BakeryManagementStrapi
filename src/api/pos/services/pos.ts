@@ -116,6 +116,9 @@ function requirePositive(value: unknown, message: string): number {
   return parsed;
 }
 
+const SALARY_FIELDS = ['cashier_salary', 'baker_salary', 'cook_salary', 'cook2_salary'] as const;
+type SalaryField = (typeof SALARY_FIELDS)[number];
+
 function serializeProduct(product: ProductRow) {
   return {
     documentId: product.documentId,
@@ -254,6 +257,11 @@ function addUsage(
 }
 
 export default ({ strapi }: { strapi: Core.Strapi }) => ({
+  /**
+   * Active products ordered by production template (templates by name, products in
+   * template order), so the cashier finds them by group. Products that are in no
+   * template come last, by name.
+   */
   async getProducts() {
     const products = (await strapi.db.query(PRODUCT_UID).findMany({
       where: { is_active: { $ne: false } },
@@ -261,7 +269,33 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       orderBy: { name: 'asc' },
     })) as ProductRow[];
 
-    return products.map(serializeProduct);
+    const templates = (await strapi.documents(TEMPLATE_UID as never).findMany({
+      status: 'published',
+      sort: 'type:asc',
+      populate: { created_products: { populate: { product: { fields: ['documentId'] } } } },
+    } as never)) as unknown as TemplateRow[];
+
+    const byId = new Map(products.map((product) => [product.documentId, product]));
+    const placed = new Set<string>();
+    const result: Array<ReturnType<typeof serializeProduct> & { group: string | null }> = [];
+
+    for (const template of templates) {
+      for (const line of template.created_products ?? []) {
+        const documentId = line.product?.documentId;
+        const product = documentId ? byId.get(documentId) : undefined;
+        if (!product || placed.has(product.documentId)) continue;
+        placed.add(product.documentId);
+        result.push({ ...serializeProduct(product), group: template.type });
+      }
+    }
+
+    for (const product of products) {
+      if (!placed.has(product.documentId)) {
+        result.push({ ...serializeProduct(product), group: null });
+      }
+    }
+
+    return result;
   },
 
   async createSale(input: {
@@ -396,11 +430,15 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     );
     const openingCash = Number(desk?.opening_cash ?? 0);
     const workersCost = Number(desk?.workers_cost ?? 0);
+    const salaries = Object.fromEntries(
+      SALARY_FIELDS.map((field) => [field, Number(desk?.[field] ?? 0)]),
+    ) as Record<SalaryField, number>;
 
     return {
       date,
       opening_cash: openingCash,
       workers_cost: workersCost,
+      ...salaries,
       sales_count: sales.length,
       cash_sales_total: cashTotal,
       card_sales_total: cardTotal,
@@ -418,15 +456,33 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     };
   },
 
+  /**
+   * Workers pay is entered per role; `workers_cost` stays the total so the cash
+   * summary and end-of-day keep working. Older app versions that only send
+   * `workers_cost` still set the total directly.
+   */
   async upsertCashDesk(
     date: string,
-    input: { opening_cash?: number | null; workers_cost?: number | null },
+    input: { opening_cash?: number | null; workers_cost?: number | null } & Partial<
+      Record<SalaryField, number | null>
+    >,
   ) {
     const data: Record<string, unknown> = {};
     if (input.opening_cash != null) data.opening_cash = Math.max(Number(input.opening_cash), 0);
-    if (input.workers_cost != null) data.workers_cost = Math.max(Number(input.workers_cost), 0);
 
     const existing = await strapi.db.query(CASH_DESK_UID).findOne({ where: { date } });
+
+    if (SALARY_FIELDS.some((field) => input[field] != null)) {
+      const salaries = SALARY_FIELDS.map((field) => {
+        const value = input[field] != null ? Number(input[field]) : Number(existing?.[field] ?? 0);
+        const clean = Number.isFinite(value) ? Math.max(value, 0) : 0;
+        data[field] = clean;
+        return clean;
+      });
+      data.workers_cost = sumMoney(salaries);
+    } else if (input.workers_cost != null) {
+      data.workers_cost = Math.max(Number(input.workers_cost), 0);
+    }
 
     if (existing) {
       await strapi
@@ -495,6 +551,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     return templates.map((template) => ({
       documentId: template.documentId,
       type: template.type,
+      split_count: toNumberOrNull(template.split_count),
       created_products: (template.created_products ?? [])
         .filter((line) => line.product)
         .map((line) => ({
@@ -534,11 +591,16 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
    * Same costing as the web production form (template ingredients × multiplier
    * plus product-specific and filling ingredients), but worker pay is 0 —
    * workers are paid from the cash desk instead.
+   *
+   * `split_pieces_used` mirrors the web "Մասնակի" mode: for templates with a
+   * `split_count`, only that many of round(split_count × multiplier) pieces were
+   * used, so the template ingredients are scaled by that share.
    */
   async createProduction(input: {
     date: string;
     template: string;
     multiplier: number;
+    split_pieces_used?: number | null;
     created_products?: Array<{ product: string; count: number }>;
   }) {
     const multiplier = requirePositive(input.multiplier, 'Քանակը պետք է լինի 0-ից մեծ');
@@ -578,10 +640,24 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       createdProducts.map((line) => line.productDocumentId),
     );
 
+    let splitFactor = 1;
+    const splitCount = toNumberOrNull(template.split_count);
+    const piecesUsed = toNumberOrNull(input.split_pieces_used);
+    if (splitCount != null && splitCount > 0 && piecesUsed != null) {
+      const totalPieces = Math.max(1, Math.round(splitCount * multiplier));
+      const clamped = Math.min(Math.max(Math.round(piecesUsed), 1), totalPieces);
+      splitFactor = clamped / totalPieces;
+    }
+
     const usage = new Map<string, IngredientUsage>();
 
     for (const line of template.used_ingredients ?? []) {
-      addUsage(usage, line.ingredient, Number(line.count) * multiplier, line.show_unit ?? null);
+      addUsage(
+        usage,
+        line.ingredient,
+        Number(line.count) * multiplier * splitFactor,
+        line.show_unit ?? null,
+      );
     }
 
     let totalPrice = 0;

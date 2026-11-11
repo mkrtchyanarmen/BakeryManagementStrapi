@@ -27,6 +27,26 @@
       "default": 0,
       "min": 0
     },
+    "cashier_salary": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    },
+    "baker_salary": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    },
+    "cook_salary": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    },
+    "cook2_salary": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    },
     "notes": {
       "type": "text"
     }
