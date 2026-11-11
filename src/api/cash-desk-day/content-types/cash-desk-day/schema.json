@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cash_desk_days",
+  "info": {
+    "singularName": "cash-desk-day",
+    "pluralName": "cash-desk-days",
+    "displayName": "Cash Desk Day",
+    "description": "Opening cash and workers pay for a day at the cash desk"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true,
+      "unique": true
+    },
+    "opening_cash": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    },
+    "workers_cost": {
+      "type": "decimal",
+      "default": 0,
+      "min": 0
+    },
+    "notes": {
+      "type": "text"
+    }
+  }
+}

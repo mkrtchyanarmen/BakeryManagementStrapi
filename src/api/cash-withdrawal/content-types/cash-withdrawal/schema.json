@@ -1,0 +1,57 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cash_withdrawals",
+  "info": {
+    "singularName": "cash-withdrawal",
+    "pluralName": "cash-withdrawals",
+    "displayName": "Cash Withdrawal",
+    "description": "Money taken from the cash desk, for home or for business purchases"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "taken_at": {
+      "type": "datetime",
+      "required": true
+    },
+    "amount": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "purpose": {
+      "type": "enumeration",
+      "enum": [
+        "home",
+        "business"
+      ],
+      "required": true
+    },
+    "ingredient": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::ingredient.ingredient"
+    },
+    "quantity": {
+      "type": "decimal",
+      "min": 0
+    },
+    "ingredient_purchase": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::ingredient-purchase.ingredient-purchase"
+    },
+    "note": {
+      "type": "text"
+    },
+    "cashier": {
+      "type": "string"
+    }
+  }
+}

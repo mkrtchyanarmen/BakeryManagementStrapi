@@ -34,6 +34,14 @@
       "type": "component",
       "component": "count-components.filling-usage",
       "repeatable": true
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
     }
   }
 }

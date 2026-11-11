@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pos_sales",
+  "info": {
+    "singularName": "pos-sale",
+    "pluralName": "pos-sales",
+    "displayName": "POS Sale",
+    "description": "Single checkout from the cashier app with price snapshots"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "sold_at": {
+      "type": "datetime",
+      "required": true
+    },
+    "items": {
+      "type": "component",
+      "component": "count-components.sales-product-line",
+      "repeatable": true,
+      "required": true,
+      "min": 1
+    },
+    "total_price": {
+      "type": "decimal",
+      "required": true,
+      "min": 0
+    },
+    "payment_method": {
+      "type": "enumeration",
+      "enum": [
+        "cash",
+        "card"
+      ],
+      "required": true
+    },
+    "cash_received": {
+      "type": "decimal",
+      "min": 0
+    },
+    "change_given": {
+      "type": "decimal",
+      "min": 0
+    },
+    "terminal_reference": {
+      "type": "string"
+    },
+    "cashier": {
+      "type": "string"
+    }
+  }
+}

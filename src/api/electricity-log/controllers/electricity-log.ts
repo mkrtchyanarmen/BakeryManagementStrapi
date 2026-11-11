@@ -1,6 +1,9 @@
 import { factories } from '@strapi/strapi';
 
-import { applyElectricityLogDefaults } from '../../../utils/electricity-log';
+import {
+  applyElectricityLogDefaults,
+  copyElectricityComputedFields,
+} from '../../../utils/electricity-log';
 
 export default factories.createCoreController(
   'api::electricity-log.electricity-log' as never,
@@ -38,8 +41,7 @@ export default factories.createCoreController(
 
       await applyElectricityLogDefaults(strapi, merged, Number(existing.id));
 
-      body.data.kwh_used = merged.kwh_used;
-      body.data.total_cost = merged.total_cost;
+      copyElectricityComputedFields(merged, body.data);
 
       return super.update(ctx);
     },

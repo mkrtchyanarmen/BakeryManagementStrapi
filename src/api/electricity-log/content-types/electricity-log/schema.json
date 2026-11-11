@@ -5,7 +5,7 @@
     "singularName": "electricity-log",
     "pluralName": "electricity-logs",
     "displayName": "Electricity Log",
-    "description": "Daily electricity meter readings and computed usage"
+    "description": "Daily electricity meter readings (morning/evening) with day/night tariffs"
   },
   "options": {
     "draftAndPublish": false
@@ -17,15 +17,31 @@
       "required": true,
       "unique": true
     },
+    "morning_reading": {
+      "type": "decimal",
+      "min": 0
+    },
     "meter_reading": {
       "type": "decimal",
-      "required": true,
-      "min": 0
+      "min": 0,
+      "required": false
     },
     "kwh_used": {
       "type": "decimal"
     },
     "total_cost": {
+      "type": "decimal"
+    },
+    "kwh_day": {
+      "type": "decimal"
+    },
+    "kwh_night": {
+      "type": "decimal"
+    },
+    "day_cost": {
+      "type": "decimal"
+    },
+    "night_cost": {
       "type": "decimal"
     }
   }

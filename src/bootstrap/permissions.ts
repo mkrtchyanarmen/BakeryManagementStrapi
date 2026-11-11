@@ -12,6 +12,9 @@ const CONTENT_TYPES = [
   'api::sales-record.sales-record',
   'api::daily-cash-report.daily-cash-report',
   'api::electricity-log.electricity-log',
+  'api::pos-sale.pos-sale',
+  'api::cash-desk-day.cash-desk-day',
+  'api::cash-withdrawal.cash-withdrawal',
 ] as const;
 
 const SINGLE_TYPES = ['api::app-setting.app-setting'] as const;
@@ -27,6 +30,17 @@ const CUSTOM_ACTIONS = [
   'api::report.report.dashboard',
   'api::end-of-day.end-of-day.get',
   'api::app-setting.app-setting.electricityPrice',
+  'api::pos.pos.products',
+  'api::pos.pos.createSale',
+  'api::pos.pos.cashSummary',
+  'api::pos.pos.updateCashDesk',
+  'api::pos.pos.updateElectricity',
+  'api::pos.pos.templates',
+  'api::pos.pos.productions',
+  'api::pos.pos.createProduction',
+  'api::pos.pos.remaining',
+  'api::pos.pos.ingredients',
+  'api::pos.pos.createWithdrawal',
 ] as const;
 
 const OPERATOR_WRITE_TYPES = new Set<string>([
@@ -35,6 +49,9 @@ const OPERATOR_WRITE_TYPES = new Set<string>([
   'api::sales-record.sales-record',
   'api::daily-cash-report.daily-cash-report',
   'api::electricity-log.electricity-log',
+  'api::pos-sale.pos-sale',
+  'api::cash-desk-day.cash-desk-day',
+  'api::cash-withdrawal.cash-withdrawal',
 ]);
 
 const OPERATOR_READ_TYPES = new Set<string>([
@@ -50,12 +67,31 @@ function contentTypeAction(uid: string, action: string): string {
   return `${uid}.${action}`;
 }
 
+function actionExists(strapi: Core.Strapi, action: string): boolean {
+  const match = /^(api::[^.]+\.[^.]+)\.([^.]+)$/.exec(action);
+  if (!match) return false;
+
+  const controller = strapi.controller(match[1] as never) as
+    | Record<string, unknown>
+    | undefined;
+  return typeof controller?.[match[2]] === 'function';
+}
+
+/**
+ * In Strapi v5 a permission row's existence is the grant. This only adds
+ * missing grants and never removes rows, so permissions configured manually
+ * in the admin panel are preserved.
+ */
 async function setPermissionEnabled(
   strapi: Core.Strapi,
   roleId: number,
   action: string,
   enabled: boolean,
 ) {
+  if (!enabled || !actionExists(strapi, action)) {
+    return;
+  }
+
   const permission = await strapi.db
     .query('plugin::users-permissions.permission')
     .findOne({
@@ -65,13 +101,12 @@ async function setPermissionEnabled(
       },
     });
 
-  if (!permission) {
+  if (permission) {
     return;
   }
 
-  await strapi.db.query('plugin::users-permissions.permission').update({
-    where: { id: permission.id },
-    data: { enabled },
+  await strapi.db.query('plugin::users-permissions.permission').create({
+    data: { action, role: roleId },
   });
 }
 

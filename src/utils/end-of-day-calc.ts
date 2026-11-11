@@ -200,16 +200,28 @@ export type EndOfDayCalculationInput = {
   soldProducts: SoldProductLine[];
   totalRevenue: number;
   electricityCost: number | null;
+  /** Workers pay entered at the cash desk (cashier app), on top of production pay. */
+  cashDeskWorkersCost?: number;
 };
 
 export function calculateEndOfDayBreakdown(input: EndOfDayCalculationInput) {
-  const { date, settings, productions, soldProducts, totalRevenue, electricityCost } =
-    input;
+  const {
+    date,
+    settings,
+    productions,
+    soldProducts,
+    totalRevenue,
+    electricityCost,
+    cashDeskWorkersCost = 0,
+  } = input;
 
   const daysInMonth = getDaysInMonth(date);
   const ingredients = aggregateIngredientUsage(productions);
   const ingredientsCost = sumProductionIngredientsCost(productions);
-  const productionPrice = sumProductionWorkerPay(productions);
+  const productionPrice = sumMoney([
+    sumProductionWorkerPay(productions),
+    cashDeskWorkersCost,
+  ]);
 
   const rentalMonthly = Number(settings.rental_price);
   const counterMonthly = Number(settings.counter_service_fee);

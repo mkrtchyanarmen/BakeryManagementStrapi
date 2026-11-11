@@ -1,13 +1,10 @@
-import { getAppSettings, getElectricityPricePerKwh } from '../../../utils/app-settings';
+import { getAppSettings, getElectricityPrices } from '../../../utils/app-settings';
 import {
   calculateEndOfDayBreakdown,
   loadEndOfDayProductions,
   loadEndOfDaySoldProducts,
 } from '../../../utils/end-of-day-calc';
-import {
-  getPreviousElectricityLog,
-  getPreviousReadingFromLog,
-} from '../../../utils/electricity-log';
+import { getPreviousElectricityLog } from '../../../utils/electricity-log';
 import { roundMoney, sumMoney } from '../../../utils/money';
 
 function getCashReportTotalEntered(cashReport: {
@@ -28,7 +25,8 @@ function getCashReportTotalEntered(cashReport: {
 export default () => ({
   async getEndOfDay(date: string) {
     const settings = await getAppSettings(strapi);
-    const pricePerKwh = await getElectricityPricePerKwh(strapi);
+    const prices = await getElectricityPrices(strapi);
+    const pricePerKwh = prices.day;
     const previousLog = await getPreviousElectricityLog(strapi, date);
 
     const todayElectricity = await strapi.db
@@ -59,14 +57,13 @@ export default () => ({
       ? Number(todayElectricity.total_cost)
       : null;
 
-    const previousReading = previousLog
-      ? Number(previousLog.meter_reading)
-      : todayElectricity
-        ? getPreviousReadingFromLog(
-            previousLog,
-            Number(todayElectricity.meter_reading),
-          )
-        : null;
+    const previousReading =
+      previousLog?.meter_reading != null ? Number(previousLog.meter_reading) : null;
+
+    const cashDeskDay = await strapi.db
+      .query('api::cash-desk-day.cash-desk-day')
+      .findOne({ where: { date } });
+    const cashDeskWorkersCost = Number(cashDeskDay?.workers_cost ?? 0);
 
     const productions = await loadEndOfDayProductions(strapi, date);
     const soldProducts = await loadEndOfDaySoldProducts(strapi, date);
@@ -82,6 +79,7 @@ export default () => ({
       soldProducts,
       totalRevenue,
       electricityCost,
+      cashDeskWorkersCost,
     });
 
     return {
@@ -91,18 +89,37 @@ export default () => ({
         counter_service_fee: Number(settings?.counter_service_fee ?? 0),
         mandatory_payment: Number(settings?.mandatory_payment ?? 0),
         electricity_price_per_kwh: pricePerKwh,
+        electricity_night_price_per_kwh: prices.night,
       },
       electricity: {
         id: todayElectricity ? Number(todayElectricity.id) : null,
         documentId: todayElectricity?.documentId ?? null,
         date,
-        meter_reading: todayElectricity
-          ? Number(todayElectricity.meter_reading)
-          : null,
+        morning_reading:
+          todayElectricity?.morning_reading != null
+            ? Number(todayElectricity.morning_reading)
+            : null,
+        meter_reading:
+          todayElectricity?.meter_reading != null
+            ? Number(todayElectricity.meter_reading)
+            : null,
         previous_reading: previousReading,
         previous_date: previousLog ? String(previousLog.date) : null,
         kwh_used: todayElectricity ? Number(todayElectricity.kwh_used) : null,
+        kwh_day:
+          todayElectricity?.kwh_day != null ? Number(todayElectricity.kwh_day) : null,
+        kwh_night:
+          todayElectricity?.kwh_night != null
+            ? Number(todayElectricity.kwh_night)
+            : null,
+        day_cost:
+          todayElectricity?.day_cost != null ? Number(todayElectricity.day_cost) : null,
+        night_cost:
+          todayElectricity?.night_cost != null
+            ? Number(todayElectricity.night_cost)
+            : null,
         price_per_kwh: pricePerKwh,
+        night_price_per_kwh: prices.night,
         total_cost: electricityCost,
         is_entered: Boolean(todayElectricity),
       },

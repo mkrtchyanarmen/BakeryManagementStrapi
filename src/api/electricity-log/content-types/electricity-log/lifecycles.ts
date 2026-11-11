@@ -1,4 +1,7 @@
-import { applyElectricityLogDefaults } from '../../../../utils/electricity-log';
+import {
+  applyElectricityLogDefaults,
+  copyElectricityComputedFields,
+} from '../../../../utils/electricity-log';
 
 export default {
   async beforeCreate(event: { params: { data: Record<string, unknown> } }) {
@@ -10,7 +13,11 @@ export default {
   }) {
     const { data, where } = event.params;
 
-    if (!('meter_reading' in data) && !('date' in data)) {
+    if (
+      !('meter_reading' in data) &&
+      !('morning_reading' in data) &&
+      !('date' in data)
+    ) {
       return;
     }
 
@@ -29,7 +36,6 @@ export default {
 
     await applyElectricityLogDefaults(strapi, merged, where.id);
 
-    data.kwh_used = merged.kwh_used;
-    data.total_cost = merged.total_cost;
+    copyElectricityComputedFields(merged, data);
   },
 };

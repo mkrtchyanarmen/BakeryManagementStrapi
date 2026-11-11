@@ -18,6 +18,10 @@
       "default": 0,
       "min": 0
     },
+    "electricity_night_price_per_kwh": {
+      "type": "decimal",
+      "min": 0
+    },
     "rental_price": {
       "type": "decimal",
       "required": true,
